@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addTodo, toggleTodo, deleteTodo } from './reducers/todosReducer';
+import TodoList from './components/TodoList';
 
-function App() {
+const App = () => {
+  const todos = useSelector(state => state.todos);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
+
+  const handleAddTodo = text => {
+    const newTodo = { id: Date.now(), text, completed: false };
+    dispatch(addTodo(newTodo));
+  };
+
+  const handleToggleTodo = id => {
+    dispatch(toggleTodo(id));
+  };
+
+  const handleDeleteTodo = id => {
+    dispatch(deleteTodo(id));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>To-Do List</h1>
+      <input
+        type="text"
+        placeholder="Add a new task"
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            handleAddTodo(e.target.value);
+            e.target.value = '';
+          }
+        }}
+      />
+      <TodoList todos={todos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />
     </div>
   );
-}
+};
 
 export default App;
